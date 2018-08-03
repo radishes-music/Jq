@@ -154,29 +154,40 @@ App.extend({
 	}
 });
 
+// 获取元素所有属性 attributes => NamedNodeMap对象
+// firstElementChild
+// lastElementChild
+
+function classType (vac, that, type) {
+	var elem = that.elem || {},
+		i = 0,
+		len = vac.length;
+
+	for ( ; i < len ; i++) {
+		if (typeof vac[i] === 'string') {
+			elem.classList[type](vac[i]);
+		};
+		
+	};
+};
+
 App.extend({
+
+	// class返回 DOMTokenList对象
 
 	getClass: function () {
 		elem = this.elem;
 		return elem.getAttribute && elem.getAttribute( "class" ) || "";
 	},
+
 	// 添加指定样式
-	addClass: function (value) {
-		var elem = this.elem || {};
-
-		if (typeof value === 'string') {
-
-			elem.classList.add(value);
-		};
+	addClass: function () {
+		classType(arguments, this, 'add');
 	},
 
 	// 移除指定样式
-	removeClass: function (value) {
-		var elem = this.elem || {};
-
-		if (typeof value === 'string') {
-			elem.classList.remove(value);
-		};
+	removeClass: function () {
+		classType(arguments, this, 'remove');
 	},
 
 	replaceClass: function (n, a) {
@@ -187,16 +198,28 @@ App.extend({
 		};
 	},
 
-	// stateVal === true 添加 / 移除
-	toggleClass: function (value, stateVal) {
+	// stateVal === true 添加 / 移除 toggle
+	toggleClass: function (value, force) {
 
-		if (stateVal)
-			stateVal = true;
+		if (value === '')
+			return;
 
-		if (typeof value === 'string' && typeof stateVal === 'boolean') {
-			return stateVal ? this.addClass(value) : this.removeClass(value);
+		if (typeof force === 'boolean') {
+			return this.elem.classList.toggle(value, force);
+		}
+
+		if (typeof value === 'string') {
+			return this.elem.classList.toggle(value);
 		};
 
+	},
+
+	// 检查元素中是否存在类值
+	checkClass: function (value) {
+		if (typeof value !== 'string') 
+			return;
+
+		return this.elem.classList.contains(value)
 	}
 });
 

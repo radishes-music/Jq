@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>重写JQ</title>
-    <script type="text/javascript" src="JQ.lock.js"></script>
+    <script type="text/javascript" src="JQ.js"></script>
     <link href="https://cdn.bootcss.com/bootstrap/2.1.1/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.bootcss.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
     <style type="text/css" media="screen">
@@ -16,82 +16,34 @@
 </head>
 
 <body>
-	<p id="pw-1" class="cw-1">dwqd</p>
-    <div class="panel panel-primary">
-        <div class="panel-heading">
-            <h3 class="panel-title">
-	            带有 title 的面板标题
-	            <a href="#" class="btn btn1" title=""><i class="icon-arrow-up icon" id="icon"></i></a>
-	        </h3>
-        </div>
-        <div class="panel-body">
-            <div class="hero-unit">
-                <h1>Heading</h1>
-                <p>Tagline</p>
-                <p>
-                    <a class="btn btn-primary btn-large">
-				      Learn more
-				    </a>
-                </p>
-            </div>
-        </div>
-    </div>
-    <div class="panel panel-primary">
-        <div class="panel-heading">
-            <h3 class="panel-title">
-	            带有 title 的面板标题
-	            <a href="#" class="btn btn1" title=""><i class="icon-arrow-up icon" id="icon"></i></a>
-	        </h3>
-        </div>
-        <div class="panel-body">
-            <div class="hero-unit">
-                <h1>Heading</h1>
-                <p>Tagline</p>
-                <p>
-                    <a class="btn btn-primary btn-large">
-				      Learn more
-				    </a>
-                </p>
-            </div>
-        </div>
-    </div>
-    <div class="panel panel-primary">
-        <div class="panel-heading">
-            <h3 class="panel-title">
-	            带有 title 的面板标题
-	            <a href="#" class="btn btn1" title=""><i class="icon-arrow-up icon" id="icon"></i></a>
-	        </h3>
-        </div>
-        <div class="panel-body">
-            <div class="hero-unit">
-                <h1>Heading</h1>
-                <p>Tagline</p>
-                <p>
-                    <a class="btn btn-primary btn-large">
-				      Learn more
-				    </a>
-                </p>
-            </div>
+    <div id="box">
+        <div id="boxChild" class="a b c d e" style="color: red">
+            <ul>
+                <li class="li a"></li>
+                <li class="li"></li>
+                <li class="li"></li>
+                <!-- <li class="li"></li>
+                <li class="li"></li>
+                <li class="li"></li> -->
+            </ul>
         </div>
     </div>
     <script type="text/javascript">
-    var a = false, b = false, c = false;
+        var rquickExpr = /^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]*))$/;
+        console.log(rquickExpr.exec('<div id=top></div>'))
 
-    $('.cw-1').addCss({'color': 'red'})
-    
-    function dq(q) {
-    $('.btn1').eq(q).elem.onclick = function() {
+        console.log($('#boxChild').elem.ownerDocument)
+        console.log($('#boxChild').elem.attributes)
+        console.log($('#boxChild ul').elem.childElementCount)
+        console.log($('#boxChild').elem.ownerDocument.documentElement)
 
-    	var p = q === 0 ? a : q === 1 ? b : c;
-    	p ? p = false : p = true;
-        q === 0 ? a = p : q === 1 ? b = p : c = p;
-        p ? $('.panel-title').eq(q).addCss({'color': 'red'}) : $('.panel-title').eq(q).addCss({'color': 'green'});
-        p ? $('.icon').eq(q).replaceClass('icon-arrow-up', 'icon-arrow-down') : $('.icon').eq(q).replaceClass('icon-arrow-down', 'icon-arrow-up');
-        p ? $('.panel-body').eq(q).hide(0.2) : $('.panel-body').eq(q).show(0.2)
-    }}
-    dq(0)
-    dq(1)
-    dq(2)
+        console.log($('.li').eq(0).elem.classList)
+
+        
+        $('#boxChild').toggleClass('a', true)
+        $('#boxChild').removeClass('a', 'c')
+        console.log($('#boxChild').checkClass('b'))
+        console.log([$('ul').elem])
     </script>
 </body>
 
