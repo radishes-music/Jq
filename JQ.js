@@ -297,7 +297,7 @@ App.extend({
 		var _t = this,
 			s = _t.elem.style;
 
-		showHide(s, speed);
+		showHide(s, speed / 1000);
 
 		s.display = 'block';
 
@@ -307,7 +307,7 @@ App.extend({
 			s.opacity = '1';
 		});
 
-		delay(speed * 1000, () => {
+		delay(speed, () => {
 			showHide(s, 0, true);
 			if (callback && _t.isFunction(callback)) callback();
 		});
@@ -328,11 +328,11 @@ App.extend({
 
 		delay(0, () => {
 
-			showHide(s, speed, true);
+			showHide(s, speed / 1000, true);
 
 		});
 
-		delay(speed * 1000, () => {
+		delay(speed, () => {
 
 			showHide(s, 0, false);
 
