@@ -7,8 +7,6 @@
 
 
 function App () {
-	"use strict";
-
 };
 
 App.fn = App.prototype = {
@@ -16,6 +14,8 @@ App.fn = App.prototype = {
 	constructor: App,
 
 	log: console.log,
+
+    Link: '0.0.1',
 
 	eq: function (i) {
 		var _t = this;
@@ -42,12 +42,14 @@ App.fn = App.prototype = {
 	},
 
 	each: function (callback) {
-		var 
-			i = 0, 
+		var
+			i = 0,
 			len = this.elem.length;
-
-		for ( ; i < len; i++) {
+		if (len === 1) {
 			callback(this, i);
+		}
+		for ( ; i < len; i++) {
+			callback(new Jq(this.elem[i]), i);
 		};
 	},
 
@@ -79,7 +81,7 @@ App.fn = App.prototype = {
 };
 
 App.extend = App.fn.extend = function () {
-	var 
+	var
 		r = function(){};
 
 	for (var i in App.prototype) {
@@ -104,7 +106,7 @@ App.extend({
 
 		if (a[1]) {
 
-			b === '[object NodeList]' ? 
+			b === '[object NodeList]' ?
 				_t.elem[0].style[a[0]] = a[1]
 			:
 				_t.elem.style[a[0]] = a[1];
@@ -113,14 +115,14 @@ App.extend({
 
 		for (var key in value) {
 
-			b === '[object NodeList]' ? 
+			b === '[object NodeList]' ?
 				_t.elem[0].style[ key ] = value[ key ]
 			:
 				_t.elem.style[ key ] = value[ key ];
 
 		};
 	}
-	
+
 });
 
 App.extend({
@@ -192,7 +194,7 @@ function classType (vac, that, type) {
 		if (typeof vac[i] === 'string') {
 			elem.classList[type](vac[i]);
 		};
-		
+
 	};
 };
 
@@ -240,9 +242,10 @@ App.extend({
 
 	// 检查元素中是否存在类值
 	checkClass: function (value) {
-		if (typeof value !== 'string') 
-			return;
-
+		if (typeof value !== 'string') {
+            throw `${value} is not on type string`;
+            return;
+		}
 		return this.elem.classList.contains(value)
 	}
 });
@@ -264,13 +267,13 @@ App.extend({
 
 App.extend({
 	width: function (w, isScroll) {
-		if (w) 
+		if (w)
 			this.elem.style.width = w + 'px';
 		else
 			return isScroll ? this.elem.scrollWidth : this.elem.clientWidth;
 	},
 	height: function (h, isScroll) {
-		if (h) 
+		if (h)
 			this.elem.style.height = h + 'px';
 		else
 			return isScroll ? this.elem.scrollHeight : this.elem.clientHeight;
@@ -301,7 +304,7 @@ App.extend({
     },
 
     nextAll: function () {
-		
+
     }
 });
 
@@ -325,7 +328,7 @@ function showHide (elem, speed) {
 				default : elem[ style [i] ] = 0;
 			}
 		}
-	else 
+	else
 		for (; i < style.length; i++) {
 			// 清空添加的style
 			style [i] === 'display' && !arguments[2] ?
@@ -435,7 +438,8 @@ function inher (sub, superType) {
 	for (var i in prototype) {
         sub.prototype[i] = prototype[i];
     }
-	console.log(sub.prototype)
+    // sub.prototype.constructor = sub;
+	// console.log(sub.prototype)
 	// sub.prototype = prototype;
     // sub.constructor = sub;
 
@@ -446,7 +450,7 @@ inher(Jq, App);
 window.$ = function (name) {
 	"use strict";
 
-	var 
+	var
 		tag = name.slice(0, 1),
 		get;
 
@@ -461,7 +465,7 @@ window.$ = function (name) {
 	var elem = name ? document[get](name) : `not find elem ${name}`;
 
 	// 没有找到elem
-	if (elem.length === 0) 
+	if (elem.length === 0)
 		console.log(new Error(`not find elemName ${name}`));
 	if (tag === '#') {
 
