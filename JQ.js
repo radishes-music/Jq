@@ -1,8 +1,9 @@
 (function() {
 
 // 重写jQuery
-
 // JQuery version : "3.2.1"
+// 目前只支持ID,Class,标签选择器
+
 
 
 function App () {
@@ -46,10 +47,34 @@ App.fn = App.prototype = {
 			len = this.elem.length;
 
 		for ( ; i < len; i++) {
-			// callback(new Jq(this.elem[i]), i);
 			callback(this, i);
 		};
-	}
+	},
+
+    children: function (fifter) {
+		var i = 0,
+			temp = fifter,
+			_self = this,
+			obj = _self.elem,
+			len = _self.elem.children.length,
+			brek = [],
+			str = fifter && fifter.replace(/^./, ''),
+            fifter = fifter && fifter.slice(0, 1);
+
+		for (; i < len; i++) {
+            if (fifter === '.' && obj.children[i].classList.contains(str)) {
+            	brek.push(obj.children[i]);
+			}
+			if (fifter === '#' && obj.children[i].id === str) {
+            	brek.push(obj.children[i]);
+			}
+			if (obj.children[i].nodeName === temp.toUpperCase()) {
+				brek.push(obj.children[i]);
+			}
+		};
+
+		return new Jq(brek);
+    },
 
 };
 
@@ -251,10 +276,6 @@ App.extend({
 			return isScroll ? this.elem.scrollHeight : this.elem.clientHeight;
 	},
 
-    children: function () {
-
-    },
-
     parent: function () {
 
     },
@@ -448,8 +469,6 @@ window.$ = function (name) {
 		elem = [elem];
 	};
 
-	// console.log(elem);
-
 	return new Jq(elem);
 
 };
@@ -516,6 +535,5 @@ link.prototype = {
 // $ 里封装一些常用方法,可以减少对prototype的遍历
 window._$ = new link();
 
-	
 
 })()
