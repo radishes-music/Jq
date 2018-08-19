@@ -190,11 +190,10 @@ App.extend({
 		classType(arguments, this, 'remove');
 	},
 
-	replaceClass: function (n, a) {
+	replaceClass: function (oldClass, newClass) {
 
-		if (n && a && typeof n === 'string' && typeof a === 'string') {
-			this.removeClass(n);
-			this.addClass(a);
+		if (oldClass && newClass && typeof oldClass === 'string' && typeof newClass === 'string') {
+			this.replace(oldClass , newClass);
 		};
 	},
 
@@ -239,20 +238,50 @@ App.extend({
 });
 
 App.extend({
-	width: function () {
-		var w = arguments[0];
+	width: function (w, isScroll) {
 		if (w) 
 			this.elem.style.width = w + 'px';
 		else
-			return this.elem.scrollWidth;
+			return isScroll ? this.elem.scrollWidth : this.elem.clientWidth;
 	},
-	height: function () {
-		var h = arguments[0];
+	height: function (h, isScroll) {
 		if (h) 
 			this.elem.style.height = h + 'px';
 		else
-			return this.elem.scrollHeight;
-	}
+			return isScroll ? this.elem.scrollHeight : this.elem.clientHeight;
+	},
+
+    children: function () {
+
+    },
+
+    parent: function () {
+
+    },
+
+    parents: function () {
+
+    },
+
+    siblings: function () {
+
+    },
+
+    prev: function () {
+
+    },
+
+    prevAll: function () {
+
+    },
+
+    next: function () {
+
+    },
+
+    nextAll: function () {
+		
+    }
 });
 
 var rect = {},
@@ -342,15 +371,38 @@ App.extend({
 	}
 });
 
-console.log(App.prototype);
+// console.log(App.prototype);
 
 function Jq (elemName) {
 	"use strict";
 
-	this.elem = elemName.length === 1 ? elemName[0] : elemName;
+    this.elem = elemName.length === 1 ? elemName[0] : elemName;
+
+    this.name = 'Copyright© 2018 Link';
 
 	this.length = typeof this.elem.length === 'undefined' ? 1 : this.elem.length;
 
+};
+
+Jq.prototype = {
+
+    constructor: Jq,
+
+	getElement: function () {
+    	return this.elem;
+	},
+
+	_init: function () {
+
+    },
+
+	_grep: function () {
+
+    },
+
+	_map: function () {
+
+    }
 };
 
 function inher (sub, superType) {
@@ -358,7 +410,13 @@ function inher (sub, superType) {
 
 	var prototype = Object.create(superType.prototype);
 	prototype.constructor = sub;
-	sub.prototype = prototype;
+
+	for (var i in prototype) {
+        sub.prototype[i] = prototype[i];
+    }
+	console.log(sub.prototype)
+	// sub.prototype = prototype;
+    // sub.constructor = sub;
 
 };
 
@@ -395,5 +453,69 @@ window.$ = function (name) {
 	return new Jq(elem);
 
 };
+
+
+var link = function() {};
+link.prototype = {
+
+	constructor: link,
+
+	type: function (name) {
+		return Object.prototype.toString.call(name);
+	},
+
+	isFunction: function (val) {
+		return this.type(val) === '[object Function]' ? true : false;
+	},
+
+	isArray: function (val) {
+        return this.type(val) === '[object Array]' ? true : false;
+	},
+
+	isObject: function (val) {
+        return this.type(val) === '[object Object]' ? true : false;
+	},
+
+    isDomDoc: function (o) {
+        var brek;
+        if (this.isXMLDoc(o)) {
+            brek = o.isConnected;
+        } else {
+            this.error (`Failed to execute 'isDomDoc' on 'Element' : '${o}' is not of type 'Element'`)
+        };
+        return brek && brek;
+    },
+
+	isXMLDoc: function (o) {
+		return (o !== null) && !!(o.ownerDocument && (o.ownerDocument.defaultView || o.ownerDocument.parentWindow).alert);
+	},
+
+	// true 为空
+	isEmptyObject: function (val) {
+		for (var i in val) {
+			return true;
+		};
+		return false;
+	},
+
+	error: function (str) {
+        throw (str);
+	},
+
+    contains: function (per, child) {
+		if (!this.isXMLDoc(per)) {
+			return this.error (`Failed to execute 'contains' on 'Node' : ${per} is not of type 'Node'`);
+		};
+		if (!this.isXMLDoc(child)) {
+            return this.error (`Failed to execute 'contains' on 'Node' : ${child} is not of type 'Node'`);
+		};
+		return per.contains(child);
+    }
+
+};
+// $ 里封装一些常用方法,可以减少对prototype的遍历
+window._$ = new link();
+
+	
 
 })()
