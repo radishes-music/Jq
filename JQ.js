@@ -3,7 +3,85 @@
 // 重写jQuery
 // JQuery version : "3.2.1"
 // 目前只支持ID,Class,标签选择器
+// 支持IE10+
 
+    var Link = {
+        type: function (name) {
+            return Object.prototype.toString.call(name);
+        },
+
+        isFunction: function (val) {
+            return this.type(val) === '[object Function]' ? true : false;
+        },
+
+        isArray: function (val) {
+            return this.type(val) === '[object Array]' ? true : false;
+        },
+
+        isObject: function (val) {
+            return this.type(val) === '[object Object]' ? true : false;
+        },
+
+        isDomDoc: function (o) {
+            var brek;
+            if (this.isXMLDoc(o)) {
+                brek = o.isConnected;
+            } else {
+                this.error (`Failed to execute 'isDomDoc' on 'Element' : '${o}' is not of type 'Element'`)
+            };
+            return brek && brek;
+        },
+
+        isXMLDoc: function (o) {
+            return (o !== null) && !!(o.ownerDocument && (o.ownerDocument.defaultView || o.ownerDocument.parentWindow).alert);
+        },
+
+        // false 为空
+        isEmptyObject: function (val) {
+            for (var i in val) {
+                return true;
+            };
+            return false;
+        },
+
+        error: function (str) {
+            throw (str);
+        },
+
+        contains: function (per, child) {
+            if (!this.isXMLDoc(per)) {
+                return this.error (`Failed to execute 'contains' on 'Node' : ${per} is not of type 'Node'`);
+            };
+            if (!this.isXMLDoc(child)) {
+                return this.error (`Failed to execute 'contains' on 'Node' : ${child} is not of type 'Node'`);
+            };
+            return per.contains(child);
+        },
+
+        each: function (obj, callback) {
+            var len , i = 0;
+
+            if (this.isArray(obj)) {
+                len = obj.length;
+                for ( ; i < len; i++ ) {
+                    if ( callback.call( obj[ i ], i, obj[ i ] ) === false ) {
+                        break;
+                    }
+                }
+            } else {
+                for (i in obj) {
+                    if ( callback.call( obj[ i ], i, obj[ i ] ) === false ) {
+                        break;
+                    }
+                }
+            }
+
+            return obj;
+        }
+    };
+
+// $ 里封装一些常用方法,可以减少对prototype的遍历
+    window._$ = window.Link = Link;
 
 
 function App () {
@@ -70,7 +148,7 @@ App.fn = App.prototype = {
 			if (fifter === '#' && obj.children[i].id === str) {
             	brek.push(obj.children[i]);
 			}
-			if (obj.children[i].nodeName === temp.toUpperCase()) {
+			if (obj.children[i].tagName === temp.toUpperCase()) {
 				brek.push(obj.children[i]);
 			}
 		};
@@ -79,6 +157,9 @@ App.fn = App.prototype = {
     },
 
 };
+
+	var
+        rnoInnerhtml = /<script|<style|<link/i;
 
 App.extend = App.fn.extend = function () {
 	var
@@ -168,17 +249,49 @@ App.extend({
 	},
 
 	// 设置节点HTML
-	html: function (value) {
+	html: function ( value ) {
 		var elem = this.elem || {};
 
 		if ( value === undefined && elem.nodeType === 1 ) {
 			return elem.innerHTML;
 		};
 
-		if (typeof value === "string") {
+		if (typeof value === "string" && !rnoInnerhtml.test( value )) {
 			elem.innerHTML = value
 		};
-	}
+	},
+
+    append: function (elem) {
+		if (Link.isXMLDoc(elem) && ( elem.nodeType === 1 || elem.nodeType === 9) ) {
+			// 未区分 tbody
+            this.elem.appendChild( elem.cloneNode(true) ); // 允许多次添加同一个节点
+		}
+
+		if ( typeof elem === 'string' ) {
+            this.elem.innerHTML += elem;
+		}
+
+    },
+
+	// 指定节点子元素之前插入元素
+    prepend: function () {
+		
+    },
+
+	// 之前插入内容
+    before: function () {
+		
+    },
+
+	// 之后插入内容
+    after: function () {
+		
+    },
+
+	// 清空父级元素上所有子节点和内容
+    empty: function () {
+
+    }
 });
 
 // 获取元素所有属性 attributes => NamedNodeMap对象
@@ -307,6 +420,86 @@ App.extend({
 
     }
 });
+
+function on (elem, types, handler, data, selector) {
+	var elemData = Link.isXMLDoc(elem.elem),
+		i = 0,
+		len = 0, typesTemp = types;
+
+	if (Link.isArray(types)) {
+		len = types.length - 1;
+	}
+
+	if ( !elemData) {
+        Link.error(`Failed to execute 'on' on 'Node' : ${elem} is not type node`);
+		return;
+	}
+
+	// 如果有第二个参数,那么将事件绑定到指定元素
+	// 事件委托
+
+	// 如果types为数组 , 分割全部监听
+	do {
+		if (Link.isArray(typesTemp)) {
+			types = typesTemp[ len ];
+		}
+
+        if (handler && !Link.isFunction(handler)) {
+
+            if ((typeof handler) === 'string') {
+                // 有子节点 - 有/没有植入数据 , 触发
+                elem.elem.addEventListener(types, function (e) {
+                    if (Link.isFunction(data)) {
+                        selector = data;
+                    } else {
+                        e ['data'] = data;
+                    }
+
+                    if (e.target.tagName === handler.toUpperCase()) { // 标签
+                        selector.call(elem, e);
+                    }
+                    // classList.contains(str)
+                    var str = handler.replace(/^./, ''),
+                        fifter = handler.slice(0, 1);
+                    if (fifter === '.' && e.target.classList.contains(str)) { // class
+                        selector.call(elem, e);
+                    }
+                    if (fifter === '#' && e.target.id === str) { // id
+                        selector.call(elem, e);
+                    }
+                })
+            } else {
+                // 有类型 - 有植入数据 , 触发
+                elem.elem.addEventListener(types, function (e) {
+
+                    e ['data'] = handler;
+
+                    data.call(elem, e);
+
+                })
+            }
+        } else { // not children
+            // 没有子节点 - 没有植入数据 - 有回调, 触发
+            elem.elem.addEventListener(types, function (e) {
+
+                if (Link.isFunction(handler)) {
+                    handler.call(elem, e);
+                }
+
+            })
+        }
+	} while ( (len--) > 0);
+
+
+
+}
+
+App.extend({
+	// EventTarget
+	on: function (types, selector, data, fn) {
+        return on( this, types, selector, data, fn );
+    }
+})
 
 var rect = {},
 	style = ['width','height','opacity','padding','margin','overflow','display','transition'];
@@ -477,67 +670,6 @@ window.$ = function (name) {
 
 };
 
-
-var link = function() {};
-link.prototype = {
-
-	constructor: link,
-
-	type: function (name) {
-		return Object.prototype.toString.call(name);
-	},
-
-	isFunction: function (val) {
-		return this.type(val) === '[object Function]' ? true : false;
-	},
-
-	isArray: function (val) {
-        return this.type(val) === '[object Array]' ? true : false;
-	},
-
-	isObject: function (val) {
-        return this.type(val) === '[object Object]' ? true : false;
-	},
-
-    isDomDoc: function (o) {
-        var brek;
-        if (this.isXMLDoc(o)) {
-            brek = o.isConnected;
-        } else {
-            this.error (`Failed to execute 'isDomDoc' on 'Element' : '${o}' is not of type 'Element'`)
-        };
-        return brek && brek;
-    },
-
-	isXMLDoc: function (o) {
-		return (o !== null) && !!(o.ownerDocument && (o.ownerDocument.defaultView || o.ownerDocument.parentWindow).alert);
-	},
-
-	// true 为空
-	isEmptyObject: function (val) {
-		for (var i in val) {
-			return true;
-		};
-		return false;
-	},
-
-	error: function (str) {
-        throw (str);
-	},
-
-    contains: function (per, child) {
-		if (!this.isXMLDoc(per)) {
-			return this.error (`Failed to execute 'contains' on 'Node' : ${per} is not of type 'Node'`);
-		};
-		if (!this.isXMLDoc(child)) {
-            return this.error (`Failed to execute 'contains' on 'Node' : ${child} is not of type 'Node'`);
-		};
-		return per.contains(child);
-    }
-
-};
-// $ 里封装一些常用方法,可以减少对prototype的遍历
-window._$ = new link();
 
 
 })()
