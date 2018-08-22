@@ -1,0 +1,28 @@
+<html>
+    <head>
+        <script src="./JQ.js"></script>
+    </head>
+    <body>
+        <div onclick="off()" style="width: 200px;height: 46px;background-color: #3a8ee6;border-radius: 6px;text-align: center;line-height: 46px;color: white;margin: 0 auto;cursor: pointer">点击移除hover事件</div>
+        <div id="event">点击,移入触发事件</div>
+        <div id="write1"></div>
+        <div id="write2"></div>
+        <script>
+            var call = {
+                c: 0,
+                m: 0
+            };
+            var targetEvent = function (e) {
+                call [e.type] = arguments.callee.caller;
+                e.type == 'click' ? call ['c'] ++ : call ['m'] ++ ;
+                e.type == 'click' ? $('#write1').text('点击' + call ['c']) : $('#write2').text('移入' + call ['m']);
+            };
+            $('#event').on(['click', 'mouseover'], targetEvent);
+            function off() {
+                $('#event').off('mouseover', call ['mouseover'], function () {
+                    $('#write').text('移除 "移入" 事件');
+                })
+            }
+        </script>
+    </body>
+</html>
