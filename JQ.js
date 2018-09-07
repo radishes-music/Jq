@@ -142,7 +142,11 @@ App.fn = App.prototype = {
             fifter = fifter && fifter.slice(0, 1);
 
 		for (; i < len; i++) {
-            if (fifter === '.' && obj.children[i].classList.contains(str)) {
+			if (obj.children[i].matches(temp)) {
+                brek.push( obj.children[i] )
+			}
+
+            /*if (fifter === '.' && obj.children[i].classList.contains(str)) {
             	brek.push(obj.children[i]);
 			}
 			if (fifter === '#' && obj.children[i].id === str) {
@@ -150,7 +154,7 @@ App.fn = App.prototype = {
 			}
 			if (obj.children[i].tagName === temp.toUpperCase()) {
 				brek.push(obj.children[i]);
-			}
+			}*/
 		};
 
 		return new Jq(brek);
